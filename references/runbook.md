@@ -27,6 +27,7 @@ Get-Content <状态目录>\_state\publish-ledger.jsonl -Tail 10
 ## B. 写一批稿（5 篇约 7 分钟，红线清单见 references/writing.md）
 
 1. **一次取 5 行**：3 家写案例 + 2 篇科普；优先「4.企业资料」≥120 字的行，避开已在发/已发的编号
+   **先过滤 `6.GEO案例` 非空的行**——已完成的 GEO 案例不再发稿（硬规则）
 2. **补料**（资料为空或过短时）：
    ```powershell
    & <PY> <FABU>\anysearch_fill.py --company "<企业全称>" --max_results 6
