@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+_state/
+_geo/
+publish-runs/
+*.bak-*.xlsx

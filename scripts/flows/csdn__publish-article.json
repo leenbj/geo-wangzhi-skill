@@ -1,0 +1,125 @@
+{
+  "id": "csdn__publish-article",
+  "label": "CSDN 发布博客（2026-11 修正：CKEditor iframe 校验）",
+  "loginCheck": {
+    "text": "内容管理",
+    "urlContains": "mp.csdn.net"
+  },
+  "media": "csdn",
+  "params": [
+    {
+      "description": "标题，5-100 字",
+      "name": "title",
+      "required": true
+    },
+    {
+      "description": "正文纯文本，空行分段",
+      "name": "body",
+      "required": true
+    },
+    {
+      "description": "文章标签",
+      "name": "tag",
+      "required": false
+    }
+  ],
+  "steps": [
+    {
+      "action": "goto",
+      "timeoutMs": 60000,
+      "url": "https://mp.csdn.net/mp_blog/creation/editor",
+      "waitUntil": "domcontentloaded"
+    },
+    {
+      "action": "waitFor",
+      "selector": "textarea[placeholder*='文章标题']",
+      "timeoutMs": 60000
+    },
+    {
+      "action": "fill",
+      "selector": "textarea[placeholder*='文章标题']",
+      "timeoutMs": 20000,
+      "value": "{{title}}"
+    },
+    {
+      "action": "waitFor",
+      "selector": "iframe.cke_wysiwyg_frame",
+      "timeoutMs": 30000
+    },
+    {
+      "action": "click",
+      "frame": "iframe.cke_wysiwyg_frame",
+      "selector": "body",
+      "timeoutMs": 20000
+    },
+    {
+      "action": "sleep",
+      "ms": 1000,
+      "timeoutMs": 5000
+    },
+    {
+      "action": "type",
+      "delayMs": 10,
+      "frame": "iframe.cke_wysiwyg_frame",
+      "selector": "body",
+      "text": "{{body}}",
+      "timeoutMs": 240000
+    },
+    {
+      "action": "sleep",
+      "ms": 1500,
+      "timeoutMs": 5000
+    },
+    {
+      "action": "eval",
+      "expression": "(() => { const f = document.querySelector('iframe.cke_wysiwyg_frame'); const d = f && f.contentDocument; const t = d ? ((d.body && (d.body.innerText || d.body.textContent)) || '').trim() : ''; if (t.length < 100) throw new Error('CKEditor 正文只收到 ' + t.length + ' 字'); return { bodyLen: t.length, head: t.slice(0, 30) }; })()",
+      "timeoutMs": 30000
+    },
+    {
+      "action": "click",
+      "optional": true,
+      "selector": "button.tag__btn-tag",
+      "timeoutMs": 10000
+    },
+    {
+      "action": "waitFor",
+      "optional": true,
+      "selector": "input[placeholder*='自定义标签']",
+      "timeoutMs": 15000
+    },
+    {
+      "action": "fill",
+      "optional": true,
+      "selector": "input[placeholder*='自定义标签']",
+      "timeoutMs": 15000,
+      "value": "{{tag}}"
+    },
+    {
+      "action": "press",
+      "key": "Enter",
+      "optional": true,
+      "timeoutMs": 10000
+    },
+    {
+      "action": "screenshot",
+      "name": "before-submit"
+    },
+    {
+      "action": "click",
+      "submit": true,
+      "text": "发布博客",
+      "timeoutMs": 20000
+    },
+    {
+      "action": "waitFor",
+      "timeoutMs": 60000,
+      "urlContains": "creation/success"
+    },
+    {
+      "action": "extract",
+      "name": "publishedUrl",
+      "url": true
+    }
+  ],
+  "updatedAt": "2026-11-20T03:18:58.449Z"
+}

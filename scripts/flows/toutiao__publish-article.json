@@ -1,0 +1,107 @@
+{
+  "id": "toutiao__publish-article",
+  "label": "头条号发布图文（v7：无封面 + 引用AI + 单次确认防重复）",
+  "loginCheck": {
+    "text": "发布",
+    "urlContains": "profile_v4"
+  },
+  "media": "toutiao",
+  "params": [
+    {
+      "description": "标题，最多 30 字",
+      "name": "title",
+      "required": true
+    },
+    {
+      "description": "正文纯文本，空行分段",
+      "name": "body",
+      "required": true
+    }
+  ],
+  "steps": [
+    {
+      "action": "goto",
+      "timeoutMs": 60000,
+      "url": "https://mp.toutiao.com/profile_v4/graphic/publish",
+      "waitUntil": "domcontentloaded"
+    },
+    {
+      "action": "waitFor",
+      "selector": "textarea[placeholder*='文章标题']",
+      "timeoutMs": 60000
+    },
+    {
+      "action": "fill",
+      "selector": "textarea[placeholder*='文章标题']",
+      "timeoutMs": 20000,
+      "value": "{{title}}"
+    },
+    {
+      "action": "fill",
+      "selector": ".ProseMirror[contenteditable=true]",
+      "timeoutMs": 120000,
+      "value": "{{body}}"
+    },
+    {
+      "action": "sleep",
+      "ms": 5000,
+      "timeoutMs": 10000
+    },
+    {
+      "action": "click",
+      "exact": true,
+      "optional": true,
+      "text": "无封面",
+      "timeoutMs": 30000
+    },
+    {
+      "action": "click",
+      "exact": true,
+      "optional": true,
+      "text": "引用AI",
+      "timeoutMs": 20000
+    },
+    {
+      "action": "sleep",
+      "ms": 1500,
+      "timeoutMs": 8000
+    },
+    {
+      "action": "screenshot",
+      "name": "before-submit"
+    },
+    {
+      "action": "click",
+      "text": "预览并发布",
+      "timeoutMs": 60000
+    },
+    {
+      "action": "waitFor",
+      "text": "确认发布",
+      "timeoutMs": 90000
+    },
+    {
+      "action": "eval",
+      "expression": "(() => { const b = [...document.querySelectorAll('button')].find(x => (x.innerText || '').trim() === '确认发布'); if (!b) throw new Error('找不到确认发布按钮'); if (window.__ksClicked) return 'already'; window.__ksClicked = 1; b.click(); return 'clicked-once'; })()",
+      "submit": true,
+      "timeoutMs": 30000
+    },
+    {
+      "action": "sleep",
+      "ms": 8000,
+      "timeoutMs": 15000
+    },
+    {
+      "action": "waitFor",
+      "optional": true,
+      "timeoutMs": 30000,
+      "urlContains": "graphic/articles"
+    },
+    {
+      "action": "extract",
+      "name": "publishedUrl",
+      "url": true
+    }
+  ],
+  "updatedAt": "2026-11-23T06:33:53.480Z"
+}

@@ -1,0 +1,85 @@
+{
+  "id": "netease__publish-article",
+  "label": "网易号发布图文（2026-11 新版：封面自动）",
+  "loginCheck": {
+    "text": "发布",
+    "urlContains": "mp.163.com/#/"
+  },
+  "media": "netease",
+  "params": [
+    {
+      "description": "标题，5-64 字",
+      "name": "title",
+      "required": true
+    },
+    {
+      "description": "正文纯文本，空行分段（网易号要求 250 字以上才分发）",
+      "name": "body",
+      "required": true
+    }
+  ],
+  "steps": [
+    {
+      "action": "goto",
+      "timeoutMs": 90000,
+      "url": "https://mp.163.com/subscribe_v4/index.html#/article-publish",
+      "waitUntil": "domcontentloaded"
+    },
+    {
+      "action": "waitFor",
+      "selector": "textarea.netease-textarea",
+      "timeoutMs": 90000
+    },
+    {
+      "action": "fill",
+      "selector": "textarea.netease-textarea",
+      "timeoutMs": 30000,
+      "value": "{{title}}"
+    },
+    {
+      "action": "waitFor",
+      "selector": ".public-DraftEditor-content",
+      "timeoutMs": 60000
+    },
+    {
+      "action": "type",
+      "delayMs": 8,
+      "selector": ".public-DraftEditor-content",
+      "text": "{{body}}",
+      "timeoutMs": 300000
+    },
+    {
+      "action": "eval",
+      "expression": "(() => { const labels = [...document.querySelectorAll('label')]; const hit = labels.filter(l => (l.innerText || '').trim() === '自动'); if (!hit.length) throw new Error('没找到封面「自动」选项'); hit[0].click(); return 'cover=auto'; })()",
+      "timeoutMs": 30000
+    },
+    {
+      "action": "eval",
+      "expression": "(() => { const body = (document.querySelector('.public-DraftEditor-content')?.innerText || '').trim(); const title = document.querySelector('textarea.netease-textarea')?.value || ''; if (title.length < 5) throw new Error('标题没填上：' + title); if (body.length < 250) throw new Error('正文只收到 ' + body.length + ' 字，网易号要求 250 字以上'); return { titleLen: title.length, bodyLen: body.length }; })()",
+      "timeoutMs": 30000
+    },
+    {
+      "action": "screenshot",
+      "name": "before-submit"
+    },
+    {
+      "action": "click",
+      "exact": true,
+      "submit": true,
+      "text": "发布",
+      "timeoutMs": 30000
+    },
+    {
+      "action": "waitFor",
+      "optional": true,
+      "text": "发布成功",
+      "timeoutMs": 60000
+    },
+    {
+      "action": "extract",
+      "name": "publishedUrl",
+      "url": true
+    }
+  ],
+  "updatedAt": "2026-11-18T08:55:05.388Z"
+}
