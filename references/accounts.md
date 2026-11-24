@@ -59,6 +59,17 @@ DTSTART;TZID=Asia/Shanghai:20261124T093000
 RRULE:FREQ=DAILY;BYHOUR=9,20;BYMINUTE=30
 ```
 
+## 3.5 浏览器模式：登录/验证有头，发布可无头
+
+| 场景 | 模式 | 说明 |
+|---|---|---|
+| `egolite_account login` 扫码 | **有头** | 必须让人看见二维码 |
+| 登录态巡检 `check_logins.py` | **有头**（`headless=False`）| 与真实环境一致，避免平台把无头判为异常会话 |
+| 页面核验 / 抓状态 | **有头** | `egolite_script`、`egolite_observe` |
+| `egolite_publish` 提交 | 可临时 `headless:true` | 发完立刻 `headless:false` |
+
+> 实测：2026-11-23 全局无头连发之后，11-24 09:30 巡检发现搜狐 `a-3`/`a-5`/`a-6` 三个号同时掉线，而同日头条 8 个号全部正常。无头不是唯一变量，但**不要把无头当成默认**。
+
 ## 4. 三条铁律（都踩过）
 
 1. **账号 profile 只能用一个浏览器打开**。ego-publish 的 `browserPath` 指向 Chrome，就用 Chrome；换成 ego.exe 会覆盖 `Local State` 的加密密钥，已登录的号当场掉线。

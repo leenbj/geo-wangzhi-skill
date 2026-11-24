@@ -98,15 +98,25 @@ python <fabu>/scripts/style_check.py --dir <项目文件夹>
 
 ### 阶段 4：发布（三平台）
 
-**内存优化：开无头模式**
+**浏览器模式规则（有头优先，只有发布瞬间才用无头）**
 
-```jsonc
-// egolite_config { op:"set", values:{ "headless": true } }
+> 账号登录、扫码、登录态巡检、页面验证一律用**有头**浏览器；只有 `egolite_publish` 真正提交发布的那一下才可切无头。
+> 原因：实测在全局无头状态下连续发布后，搜狐 3 个号在次日巡检同时掉线（`a-3`/`a-5`/`a-6`），有理由怀疑平台对无头环境做了会话校验。
+
+操作顺序（每一轮发布）：
+
+1. 先确认 `headless=false`（默认），完成登录/巡检/核验；
+2. 只在该篇要提交时临时切无头：
+
+```
+egolite_config { op:"set", values:{ "headless": true } }
+egolite_publish { accountCode:"t-4", flow:"toutiao__publish-article", params:{...}, dryRun:false }
+egolite_config { op:"set", values:{ "headless": false } }   // 发完立刻切回
 ```
 
-- 无头模式已实测可正常发布（搜狐 a-6 全流程通过：填表→选声明→提交→审核中）
-- 无头 + `idleCloseMinutes`（默认 30）能把常驻内存压掉一大半；再配合「一次只跑一个账号」，Chrome 不会再因为抢资源起不来
-- 例外：**扫码登录必须用有头模式**（`egolite_account login` 本来就开窗口）；头条若出现"发布成功但列表没有"，先切回有头验证
+3. 发布后的核验回到有头（`egolite_script` / `egolite_observe`）。
+
+若某平台出现「发出去但列表没有」或账号掉线，下一轮**全程有头**重试一次，再判断是否平台问题。
 
 **搜狐的创作声明是硬要求**
 

@@ -144,7 +144,7 @@ def check_one(ctx_browser, account: dict, cfg: dict, out: dict) -> dict:
         enable_session_restore(profile)
         ctx = ctx_browser.launch_persistent_context(
             user_data_dir=profile,
-            headless=True,
+            headless=False,
             viewport={"width": 1400, "height": 900},
             locale="zh-CN",
             args=["--no-first-run", "--no-default-browser-check", "--lang=zh-CN"],
